@@ -1,0 +1,14 @@
+#editorjs {
+    outline: 1px dashed grey;
+}
+
+.ce-block {
+    margin: 2rem 0;
+}
+
+.ce-toolbox__button {
+    width: auto;
+    margin: 0 5px;
+    padding: 2px 5px;
+    background: #fff;
+}
