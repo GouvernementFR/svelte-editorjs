@@ -2,9 +2,18 @@ export function inlineToolbarActions(node, inlineToolbar) {
 
     const checkButtonsState = () => {
         for (const option of inlineToolbar.inlineToolbarOptions) {
+            // queryCommand is not used for the fontSize.
+            if (option === "fontSize") {;
+                let selection = document.getSelection();
+                if (selection) {
+                    const fontSize = window.getComputedStyle(selection.anchorNode.parentElement, null).getPropertyValue('font-size');
+                    inlineToolbar.formats[option] = fontSize !== "16px"
+                }
+            } else {
                 inlineToolbar.formats[option] = document.queryCommandState(option) || false
-                // Needed by Svelte to trigger reactivity
-                inlineToolbar.formats = inlineToolbar.formats
+            }
+            // Needed by Svelte to trigger reactivity
+            inlineToolbar.formats = inlineToolbar.formats
         }
     }
 
@@ -15,8 +24,8 @@ export function inlineToolbarActions(node, inlineToolbar) {
         // Ensure the selection is always properly cleared
         const selection = document.getSelection()
         if (event.type === "mousedown" && selection && !selection.isCollapsed) {
-                selection.removeAllRanges();
-            }
+            selection.removeAllRanges();
+        }
     };
 
     const handleBlur = (event) => {

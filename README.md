@@ -14,13 +14,16 @@ can be integrated in non-Svelte app.
 
 ## Installation
 
-* Run `npm install`
+* Run `npm install` then `npm run build`
 
 ## Usage
 
 ### Launching the server
 
 * Run `npm run start`
+
+*Note: there is not hot reloading for the svelte files for the moment. So you have to run `npm run build` every time a 
+svelte file changes.* 
 
 ### Consuming components
 
@@ -100,11 +103,12 @@ Editor is instantiated the traditional way within your project, like this (taken
         data: JSON.parse(json),
     });
 
-## TODO
+## TO DO
 
-* [ ] Update the demo : include a form (and update the style of editorjs'UI so that it looks like the BO)
+* [ ] Adding hot reloading for the svelte part (currently, `npm run build` is need every time a .svelte file changes).
+* [ ] Update the demo : include a form (and update the style of editorjs'UI so that it looks like the BO).
 * [ ] Editor instantiation (`editor = new EditorJS()`) may be handled within this project ? This may help to simplify
-  form validation, haven't looked much into this though (because we need retro-compatibility with legacy editorjs plugins, for the moment)
+  form validation, haven't looked much into this though (because we need retro-compatibility with legacy editorjs plugins, for the moment).
 * [ ] Adding slots to improve readbility for InlineToolbar component ?
 * [ ] Adding tests ?
 * [ ] More a note for gvt_website_bo: A configuration may be passed to `_core_plugin.js` containing the information necessary to instantiate a svelte

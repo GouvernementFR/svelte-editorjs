@@ -1,27 +1,58 @@
 <svelte:options accessors/>
 <script>
-    import {tick} from 'svelte';
-
     export let top
     export let left
     export let hidden = true
     export let inlineToolbarOptions
     export let formats = {}
 
-
     function setFormat(command) {
         document.execCommand(command);
         formats[command] = document.queryCommandState(command)
     }
 
+    function sanitize(ele) {
+        // Prevents nesting of many spans and set the proper font class. Probably needs refactoring, for clarity's sake.
+        let fontClass = ele.classList.contains("fr-text--lg") ? 'fr-text' : 'fr-text--lg'
+        let fontClassHolder = ele.querySelector("span[class]")
+        if (!fontClassHolder && ele.parentNode.nodeName.toLowerCase() === "span") {
+            fontClassHolder = ele.parentNode
+        }
+        if (fontClassHolder) {
+            fontClass = fontClassHolder.classList.contains("fr-text--lg") ? 'fr-text' : 'fr-text--lg'
+            if (fontClassHolder.textContent === ele.textContent && fontClassHolder.contains(ele)) {
+                ele = fontClassHolder
+            } else if (fontClassHolder.textContent.length < ele.textContent.length && ele.parentNode.nodeName.toLowerCase() === "span") {
+                ele.parentNode.replaceWith(ele)
+            }
+        }
 
-    function normalize(ele) {
-        // todo
+        if (ele.children.length) {
+            // Removes superfluous span, if there is any.
+            ele.innerHTML = ele.innerHTML.replace(/<\/?span[^>]*>/g, "")
+            // Despite the replace() working well, a empty node sometimes remains. If it is found, it is removed.
+            if (ele.nextElementSibling && ele.nextElementSibling.textContent === "") {
+                ele.parentNode.removeChild(ele.nextElementSibling)
+            }
+        }
+        ele.className = fontClass
+        return ele
     }
 
 
-    async function setFontSize() {
-        // todo
+    function setFontSize() {
+        let selection = document.getSelection();
+        if (selection) {
+            let range = selection.getRangeAt(0)
+            let span = document.createElement('span')
+            span.appendChild(range.extractContents())
+            range.insertNode(span)
+            span = sanitize(span)
+            document.getSelection().removeAllRanges()
+            range.selectNode(span)
+            document.getSelection().addRange(range)
+            formats["fontSize"] = span.className !== "fr-text"
+        }
     }
 
 
@@ -35,6 +66,7 @@
                                                                                                      d="M0 0h24v24H0z"/><path
                     d="M11.246 15H4.754l-2 5H.6L7 4h2l6.4 16h-2.154l-2-5zm-.8-2L8 6.885 5.554 13h4.892zM21 12.535V12h2v8h-2v-.535a4 4 0 1 1 0-6.93zM19 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"
                     fill="rgba(0,0,145,1)"/></svg>
+            <div class="arrow" class:down={formats.fontSize}></div>
         </button>
         {/if}
         {#if inlineToolbarOptions.includes("bold")}
@@ -106,9 +138,12 @@
     }
 
     button {
-        width: 2rem;
-        height: 2rem;
+        min-width: 2rem;
+        min-height: 2rem;
         background-color: transparent;
+        display:flex;
+        align-items: center;
+        justify-content: center;
     }
 
     button:hover {
@@ -118,6 +153,20 @@
 
     .isActive, button:focus {
         background: #9393f8;
+    }
+
+    .arrow {
+        width: 0;
+        height: 0;
+        margin-left: 0.125rem;
+        border-left: 0.25rem solid transparent;
+        border-right: 0.25rem solid transparent;
+        border-bottom: 0.25rem solid black;
+    }
+
+    .arrow.down {
+        border-bottom: none;
+        border-top: 0.25rem solid black;
     }
 
     .hidden {
