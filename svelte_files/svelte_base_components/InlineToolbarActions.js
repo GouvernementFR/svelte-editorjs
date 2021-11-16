@@ -28,9 +28,8 @@ export function inlineToolbarActions(node, inlineToolbar) {
         }
     };
 
-    const handleBlur = (event) => {
-        // Clicking on the toolbar triggers a blur event. It shouldn't hide the toolbar.
-        if (!event.currentTarget.parentNode.contains(event.relatedTarget)) {
+    const handleBlur = (e) => {
+        if (!e.relatedTarget || !e.relatedTarget.matches(".fr-input") && !inlineToolbar.hidden) {
             inlineToolbar.hidden = true
         }
     };

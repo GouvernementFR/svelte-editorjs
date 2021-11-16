@@ -12,7 +12,7 @@
         placeholder: "*Texte de la citation",
         minlength: 10,
         maxlength: 30,
-        inlineToolbarOptions: ['insertOrderedList','insertUnorderedList', 'createLink']
+        inlineToolbarOptions: ['insertOrderedList','insertUnorderedList', 'italic', 'createLink']
     };
 
     const authorInput = {

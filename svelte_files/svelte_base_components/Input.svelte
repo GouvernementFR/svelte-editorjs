@@ -3,7 +3,7 @@
     import {inlineToolbarActions} from "./InlineToolbarActions";
     import {emailValidator, requiredValidator, minLengthValidator, maxLengthValidator} from './validators.js'
 
-    export let value = {text:null,html:null}
+    export let value = {text: null, html: null}
     export let type = "text"
     export let placeholder = "Write some text"
     export let required
@@ -39,7 +39,7 @@
 
     function conditionalAction(node, params) {
         if (inlineToolbarOptions) {
-            return inlineToolbarActions(node,params)
+            return inlineToolbarActions(node, params)
         }
     }
 </script>
@@ -69,41 +69,49 @@
 </div>
 
 
-<style>
+<style lang="scss">
 
-    .svelte-input {
-        position: relative;
+  :global(.svelte-input a) {
+    /* this will apply to <body> */
+    text-decoration: none;
+    cursor: inherit;
+  }
+
+  .svelte-input {
+    position: relative;
+  }
+
+  [contenteditable] {
+    outline-width: 1px;
+    outline-offset: 0;
+
+    &:empty:before {
+      content: attr(placeholder);
+      color: #6a6a6a;
     }
 
-    [contenteditable] {
-        outline-width: 1px;
-        outline-offset: 0;
-    }
+  }
 
-    [contenteditable]:empty:before {
-        content: attr(placeholder);
-        color: #6a6a6a;
-    }
 
-    .validation-hint {
-        color: red;
-        padding: 6px 0;
-    }
+  .validation-hint {
+    color: red;
+    padding: 6px 0;
+  }
 
-    .invalid {
-        outline-color: red;
-        outline-style: solid;
-    }
+  .invalid {
+    outline-color: red;
+    outline-style: solid;
+  }
 
-    .valid {
-        outline-color: green;
-        outline-style: solid;
-    }
+  .valid {
+    outline-color: green;
+    outline-style: solid;
+  }
 
-    .nowrap {
-        white-space: nowrap;
-        overflow: hidden;
-    }
+  .nowrap {
+    white-space: nowrap;
+    overflow: hidden;
+  }
 </style>
 
 
