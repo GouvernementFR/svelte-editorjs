@@ -3,17 +3,17 @@ export function inlineToolbarActions(node, inlineToolbar) {
     const checkButtonsState = () => {
         for (const option of inlineToolbar.inlineToolbarOptions) {
             // queryCommand is not used for the fontSize.
-            if (option === "fontSize") {;
+            if (option === "fontSize") {
                 let selection = document.getSelection();
                 if (selection) {
                     const fontSize = window.getComputedStyle(selection.anchorNode.parentElement, null).getPropertyValue('font-size');
-                    inlineToolbar.formats[option] = fontSize !== "16px"
+                    inlineToolbar.formats[option] = fontSize !== "16px";
                 }
             } else {
                 inlineToolbar.formats[option] = document.queryCommandState(option) || false
             }
             // Needed by Svelte to trigger reactivity
-            inlineToolbar.formats = inlineToolbar.formats
+            inlineToolbar.formats = inlineToolbar.formats;
         }
     }
 

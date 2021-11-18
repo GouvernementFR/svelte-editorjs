@@ -1,11 +1,12 @@
 <svelte:options accessors/>
 <script>
     import LinkForm from './LinkForm.svelte'
+
     export let top
     export let left
     export let hidden = true
     export let inlineToolbarOptions
-    export let formats = {}
+    export let formats = {headerLevel: "fr-h3"}
     let linkForm
     let linkFormOpen
 
@@ -64,14 +65,33 @@
         if (!e.target.matches(".fr-input")) e.preventDefault()
     }
 
+    function setTitle(e, event){
+        const markup = event.currentTarget.closest('.svelte-input').firstChild;
+        markup.classList.forEach((item) =>{
+            if(item === "fr-h2" || item === "fr-h3" || item === "fr-h4"){
+                markup.classList.remove(item);
+            }
+        });
+        markup.classList.add(e);
+        formats.headerLevel = e;
+    }
 
 
 </script>
 
-<span class="fr-mt-1w" class:hidden style="top: {top}px; left: {left}px;" on:mousedown={preventBlur}>
+<span class="fr-mt-1w" class:hidden style="top: {top}px; left: {left}px;" on:mousedown={preventBlur} class:minheight={linkForm}>
     <div class="fr-grid-row fr-px-3v">
+        {#each [2, 3, 4] as headerLevel}
+            {#if inlineToolbarOptions.includes("fr-h" + headerLevel)}
+                <button type="button" on:click={(event) => setTitle("fr-h"+headerLevel,event)}
+                        class:isActive={formats.headerLevel === "fr-h"+headerLevel}>
+                    T<sub>{headerLevel}</sub>
+                </button>
+            {/if}
+        {/each}
         {#if inlineToolbarOptions.includes("fontSize")}
-        <button type="button" on:click={() => setFontSize()} class:isActive={formats.fontSize} disabled="{linkFormOpen}">
+        <button type="button" on:click={() => setFontSize()} class:isActive={formats.fontSize}
+                disabled="{linkFormOpen}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="none"
                                                                                                      d="M0 0h24v24H0z"/><path
                     d="M11.246 15H4.754l-2 5H.6L7 4h2l6.4 16h-2.154l-2-5zm-.8-2L8 6.885 5.554 13h4.892zM21 12.535V12h2v8h-2v-.535a4 4 0 1 1 0-6.93zM19 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"
@@ -80,7 +100,8 @@
         </button>
         {/if}
         {#if inlineToolbarOptions.includes("bold")}
-        <button type="button" on:click={() => setFormat("bold")} class:isActive={formats.bold} disabled="{linkFormOpen}">
+        <button type="button" on:click={() => setFormat("bold")} class:isActive={formats.bold}
+                disabled="{linkFormOpen}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="none"
                                                                                                      d="M0 0h24v24H0z"/><path
                     d="M8 11h4.5a2.5 2.5 0 1 0 0-5H8v5zm10 4.5a4.5 4.5 0 0 1-4.5 4.5H6V4h6.5a4.5 4.5 0 0 1 3.256 7.606A4.498 4.498 0 0 1 18 15.5zM8 13v5h5.5a2.5 2.5 0 1 0 0-5H8z"
@@ -88,7 +109,8 @@
         </button>
         {/if}
         {#if inlineToolbarOptions.includes("italic")}
-        <button type="button" on:click={() => setFormat("italic")} class:isActive={formats.italic} disabled="{linkFormOpen}">
+        <button type="button" on:click={() => setFormat("italic")} class:isActive={formats.italic}
+                disabled="{linkFormOpen}">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path fill="none"
                                                                                                      d="M0 0h24v24H0z"/><path
                     d="M15 20H7v-2h2.927l2.116-12H9V4h8v2h-2.927l-2.116 12H15z" fill="rgba(0,0,145,1)"/></svg>
@@ -137,7 +159,10 @@
     background: var(--color);
     z-index: 1;
     max-height: 2.5rem;
-    min-width : 19.5rem;
+
+    &.minheight {
+      min-width: 19.5rem;
+    }
 
     &:before {
       content: '';
@@ -166,7 +191,7 @@
   }
 
   .isActive, button:focus {
-    background: #9393f8!important;
+    background: #9393f8 !important;
   }
 
   .linkform-open {
