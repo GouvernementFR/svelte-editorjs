@@ -67,6 +67,8 @@
 
     function setTitle(e, event){
         const markup = event.currentTarget.closest('.svelte-input').firstChild;
+        // Avoids looping if markup already has the right class.
+        if (markup.classList.contains(e)) return
         markup.classList.forEach((item) =>{
             if(item === "fr-h2" || item === "fr-h3" || item === "fr-h4"){
                 markup.classList.remove(item);
@@ -84,8 +86,8 @@
         {#each [2, 3, 4] as headerLevel}
             {#if inlineToolbarOptions.includes("fr-h" + headerLevel)}
                 <button type="button" on:click={(event) => setTitle("fr-h"+headerLevel,event)}
-                        class:isActive={formats.headerLevel === "fr-h"+headerLevel}>
-                    T<sub>{headerLevel}</sub>
+                        class:isActive={formats.headerLevel === "fr-h"+headerLevel} class="heading fr-text--lg">
+                    T<sub class="fr-text--bold">{headerLevel}</sub>
                 </button>
             {/if}
         {/each}
@@ -184,6 +186,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #000091;
 
     &:hover {
       background: #b9b9fb;
@@ -215,6 +218,14 @@
 
   .hidden {
     display: none
+  }
+
+   // Heading buttons
+  .heading sub {
+    font-size: 14px;
+    position: relative;
+    top: 3px;
+    left: -2px;
   }
 
 </style>
