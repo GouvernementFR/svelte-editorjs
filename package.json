@@ -15,8 +15,10 @@
     "css-loader": "^6.5.1",
     "rollup": "^2.0.0",
     "rollup-plugin-svelte": "^6.0.0",
+    "sass": "^1.43.4",
     "style-loader": "^3.3.1",
     "svelte": "^3.0.0",
+    "svelte-preprocess": "^4.9.8",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.4.0"
   },
