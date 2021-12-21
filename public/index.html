@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>EditorJS-Svelte demo</title>
+    <link rel="icon" href="./external_resources/favicon.ico" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="./external_resources/demo.css" />
+    <script type="module" src="./external_resources/demo.min.js"></script>
+  </head>
+
+  <body>
+    <dialog
+      id="modal-817"
+      class="fr-modal"
+      role="dialog"
+      aria-labelledby="modal-817-title"
+    >
+      <div class="fr-container fr-container--fluid fr-container-md">
+        <div class="fr-grid-row fr-grid-row--center">
+          <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+            <div class="fr-modal__body">
+              <div class="fr-modal__header">
+                <button
+                  class="fr-link--close fr-link"
+                  aria-controls="modal-817"
+                >
+                  Close
+                </button>
+              </div>
+              <div class="fr-modal__content">
+                <h1 id="modal-817-title" class="fr-modal__title">
+                  <span class="fr-fi-arrow-right-line fr-fi--lg"></span>
+                  Saved data
+                </h1>
+                <div class="jsonviewer"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+    <div class="fr-container">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col">
+          <h1>Demo Svelte EditorJS</h1>
+          <!--As of now, validation is triggered on form submission-->
+          <form>
+            <div id="editorjs" class="fr-p-2w"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <button
+      class="fr-btn sticky"
+      type="submit"
+      data-fr-opened="false"
+      aria-controls="modal-817"
+    >
+      Check saved data
+    </button>
+  </body>
+</html>

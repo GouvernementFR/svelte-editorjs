@@ -1,0 +1,24 @@
+#editorjs {
+  outline: 1px dashed grey;
+}
+
+.ce-block {
+  margin: 2rem 0;
+}
+
+.ce-block a {
+  text-decoration: none;
+}
+
+.ce-toolbox__button {
+  width: auto;
+  margin: 0 5px;
+  padding: 2px 5px;
+  background: #fff;
+}
+
+.sticky {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+}
