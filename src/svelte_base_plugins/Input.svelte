@@ -2,11 +2,19 @@
   import InlineToolbar from "./InlineToolbar.svelte";
   import { inlineToolbarActions } from "./InlineToolbarActions";
   import {
-    linkValidator,
+    urlValidator,
     requiredValidator,
     minLengthValidator,
     maxLengthValidator,
+    iframeValidator,
   } from "./validators.js";
+  import {
+    isWordDocument,
+    sanitizeWordDocument,
+    isHtml,
+    sanitizeHtml,
+    insertHtml,
+  } from "./paste-utilities";
 
   export let text;
   export let html;
@@ -15,11 +23,13 @@
   export let minlength;
   export let maxlength;
   export let url;
+  export let iframe;
   export let classes;
   export let inlineToolbarOptions = false;
   export let isValid = true;
   export let nowrap = false;
   export let contenteditable;
+  export let allowPaste = false;
   let inlineToolbar;
   let validityState;
 
@@ -27,10 +37,14 @@
     { attr: required, validator: requiredValidator },
     { attr: minlength, validator: minLengthValidator },
     { attr: maxlength, validator: maxLengthValidator },
-    { attr: url, validator: linkValidator },
+    { attr: url, validator: urlValidator },
+    { attr: iframe, validator: iframeValidator },
   ];
 
   function checkValidity() {
+    if (url) {
+      formatUrl(text);
+    }
     for (const obj of attributes) {
       if (obj.attr) {
         const check = obj.validator(text, obj.attr);
@@ -49,12 +63,51 @@
       return inlineToolbarActions(node, params);
     }
   }
+
+  function formatUrl(link) {
+    if (!link.startsWith("https://") && !link.startsWith("http://")) {
+      text = "https://" + text;
+    }
+  }
+
+  function handlePaste(event) {
+    const clipboardData = event.clipboardData || window.clipboardData;
+    const string = clipboardData.getData("text/html");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(string, "text/html");
+    if (!allowPaste) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (isHtml(doc.documentElement)) {
+        const html = sanitizeHtml(doc.body.innerHTML);
+        insertHtml(html);
+      } else {
+        document.execCommand(
+          "insertText",
+          false,
+          clipboardData.getData("text/plain")
+        );
+      }
+    } else if (isWordDocument(doc)) {
+      const successfulSanitization = sanitizeWordDocument(doc);
+      if (successfulSanitization) {
+        event.preventDefault();
+        event.stopPropagation();
+        triggerUpdate();
+      }
+    }
+  }
+
+  function triggerUpdate() {
+    html = contenteditable.innerHTML;
+    text = contenteditable.textContent;
+  }
 </script>
 
 <svelte:window on:submit|capture={checkValidity} />
 
-<div class="svelte-input" on:paste>
-  <p
+<div class="svelte-input" on:paste={handlePaste}>
+  <div
     contenteditable="true"
     {placeholder}
     bind:textContent={text}
@@ -66,7 +119,11 @@
     bind:this={contenteditable}
   />
   {#if inlineToolbarOptions}
-    <InlineToolbar {inlineToolbarOptions} bind:this={inlineToolbar} />
+    <InlineToolbar
+      {inlineToolbarOptions}
+      bind:this={inlineToolbar}
+      on:ExternalLinkAdded={triggerUpdate}
+    />
   {/if}
   {#if !isValid}
     <span class="fr-error-text fr-text--xs">
@@ -87,7 +144,7 @@
     position: relative;
     flex-basis: 100%;
 
-    p {
+    div {
       max-height: inherit !important;
 
       &:focus {
@@ -96,6 +153,10 @@
         outline-color: #0a76f6 !important;
         outline-style: solid !important;
       }
+    }
+
+    .fr-input {
+      background-color: var(--background-default-grey) !important;
     }
   }
 
@@ -122,5 +183,13 @@
   .nowrap {
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  .svelte-input__not-writable {
+    pointer-events: none;
+
+    &:focus {
+      outline: none !important;
+    }
   }
 </style>

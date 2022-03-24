@@ -1,10 +1,10 @@
 import CorePlugin from "./_core_plugin";
-import Highlight from "../svelte_plugins/Highlight.svelte";
+import Iframe from "../svelte_plugins/Iframe.svelte";
 
-export default class SvelteHighlight extends CorePlugin {
+export default class SvelteIframe extends CorePlugin {
   constructor(...args) {
     super(...args);
-    this.Plugin = Highlight;
+    this.Plugin = Iframe;
   }
 
   static get enableLineBreaks() {
@@ -13,7 +13,7 @@ export default class SvelteHighlight extends CorePlugin {
 
   static get toolbox() {
     return {
-      icon: "Exergue",
+      icon: "Insérer une iframe",
     };
   }
 }

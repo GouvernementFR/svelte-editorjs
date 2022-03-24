@@ -14,10 +14,10 @@ export function inlineToolbarActions(node, inlineToolbar) {
         inlineToolbar.formats[option] =
           document.queryCommandState(option) || false;
       }
-      // Needed by Svelte to trigger reactivity
-      /* eslint no-self-assign: "off" */
-      inlineToolbar.formats = inlineToolbar.formats;
     }
+    // Needed by Svelte to trigger reactivity
+    /* eslint no-self-assign: "off" */
+    inlineToolbar.formats = inlineToolbar.formats;
   };
 
   const handleDown = (event) => {

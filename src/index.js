@@ -5,3 +5,6 @@ export { default as SvelteButton } from "./javascript/button";
 export { default as SvelteCallout } from "./javascript/callout";
 export { default as SvelteHighlight } from "./javascript/highlight";
 export { default as SvelteLink } from "./javascript/link";
+export { default as SvelteAccordion } from "./javascript/accordion";
+export { default as SvelteIframe } from "./javascript/iframe";
+export { default as inlineToolbarFix } from "./javascript/inlineToolbarFix";

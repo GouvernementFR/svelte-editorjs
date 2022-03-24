@@ -1,22 +1,35 @@
 <script>
-  import { tick } from "svelte";
-  import { linkValidator } from "./validators.js";
+  import { tick, createEventDispatcher, onDestroy } from "svelte";
+  import { linkValidator, anchorValidator } from "./validators.js";
 
   export let open = false;
   export let toolbarHidden;
   let input;
   let inputContent = "";
   let inputIsValid;
-  let errorMsg;
+  let errorMsg = "Veuillez respecter le format d'url/d'ancre requis";
   let savedSelection;
   let href;
   let targetBlank;
 
+  /*
+     EventDispatcher may seem a bit overkill, but it may come in handy later on.
+     */
+  const dispatch = createEventDispatcher();
+
+  onDestroy(() => {
+    // Firefox fix.
+    if (savedSelection) {
+      restoreSavedSelection();
+      document.execCommand("removeFormat");
+    }
+  });
+
   function saveCurrentSelection(selection) {
     /*
-        Sets a background color on the selection, because that selection will be lost once the LinkForm input will get
-        the focus (and the user should always sees what is being edited.)
-        */
+         Sets a background color on the selection, because that selection will be lost once the LinkForm input will get
+         the focus (and the user should always sees what he is editing).
+         */
     document.execCommand("hiliteColor", false, "#d4ecff");
     savedSelection =
       selection.rangeCount === 0 ? null : selection.getRangeAt(0);
@@ -31,9 +44,9 @@
   function formInit(selection) {
     const parent = selection.getRangeAt(0).startContainer.parentNode;
     // LinkformInput shoud be empty when it is opened, unless the selection contains a href.
-    href = parent.getAttribute("href", false);
+    href = parent.getAttribute("href");
     inputContent = href || "";
-    targetBlank = parent.getAttribute("target", false);
+    targetBlank = parent.getAttribute("target") === "_blank";
     inputIsValid = true;
   }
 
@@ -47,10 +60,12 @@
       await tick();
       input.focus();
       input.select();
+    } else {
+      restoreSavedSelection();
     }
   }
 
-  async function hideToolbar() {
+  function hideToolbar() {
     // Removes the fake selection background added in saveCurrentSelection()
     restoreSavedSelection();
     document.execCommand("removeFormat");
@@ -61,21 +76,50 @@
   }
 
   async function createLink() {
-    errorMsg = linkValidator(inputContent);
-    inputIsValid = errorMsg === true;
+    const linkValidation = linkValidator(inputContent) === true;
+    const anchorValidation = anchorValidator(inputContent) === true;
+    inputIsValid = linkValidation || anchorValidation;
     if (inputIsValid) {
       if (href) {
         selectWholeLink();
       } else {
         restoreSavedSelection();
       }
+      // Clean the dom if it contains some garbage <a> (seen on Firefox).
+      document.execCommand("unlink");
       document.execCommand("createLink", false, inputContent);
-      if (targetBlank) {
-        const link = document.getSelection().getRangeAt(0)
-          .startContainer.parentNode;
-        await tick();
-        link.target = "_blank";
+      const selection = document.getSelection();
+      let link = selection.getRangeAt(0).startContainer.parentNode;
+      /*
+            Seems there is no reliable way to retrieve the inserted link in FireFox. So we try our best to identify the
+            inserted link among all the links that have the same href. If no link is found, we use the first link
+            associated with the selected href. Might cause a small inconvenience if 2 links have the same href in the
+            case the selection.containsNode fails.
+            */
+      let firefoxLink = link.querySelector(`a[href="${inputContent}"]`);
+      if (firefoxLink) {
+        const links = Array.from(
+          link.querySelectorAll(`a[href="${inputContent}"]`)
+        );
+        const ffLink = links.filter((ele) => selection.containsNode(ele, true));
+        if (ffLink.length) {
+          firefoxLink = ffLink[0];
+        }
+        link = firefoxLink;
       }
+      await tick();
+      // Prevents target=_blank when the user is adding an anchor.
+      if (targetBlank && linkValidation) {
+        link.setAttribute("target", "_blank");
+      } else if (
+        firefoxLink &&
+        firefoxLink.getAttribute("target") === "_blank"
+      ) {
+        link.removeAttribute("target");
+      } else {
+        link.setAttribute("target", "_self");
+      }
+      dispatch("ExternalLinkAdded");
       setCaretPosition();
     }
   }
@@ -89,14 +133,26 @@
 
   function selectWholeLink() {
     /*
-             Only a small part of the hyperlink text may have been selected. This extends the selection to include the
-             whole element.
-             */
+         Only a small part of the hyperlink text may have been selected. This extends the selection to include the
+         whole element.
+         */
     const selection = document.getSelection();
     const linkNode = savedSelection.startContainer.parentNode.closest("[href]");
     const newRange = document.createRange();
     newRange.selectNodeContents(linkNode);
-    savedSelection = newRange;
+    const compareStarts = newRange.compareBoundaryPoints(
+      Range.START_TO_START,
+      savedSelection
+    );
+    const compareEnds = newRange.compareBoundaryPoints(
+      Range.END_TO_END,
+      savedSelection
+    );
+    if (compareStarts <= 0 && compareEnds >= 0) {
+      savedSelection = newRange;
+    } else if (compareStarts === -1) {
+      savedSelection.setStartBefore(linkNode);
+    }
     selection.removeAllRanges();
     selection.addRange(newRange);
   }
@@ -117,12 +173,14 @@
 </script>
 
 <div class="linkform" class:open>
-  <p class="fr-text--xs">Champs obligatoire</p>
-  <label class="fr-label" for="text-input-text">Lien de redirection</label>
+  <p class="fr-text--xs">Champ obligatoire</p>
+  <label class="fr-label" for="text-input-text"
+    >Lien de redirection ou ancre</label
+  >
   <input
     class="fr-input"
     type="text"
-    placeholder="https://"
+    placeholder="https:// ou #identifiant"
     id="text-input-text"
     autocomplete="off"
     name="text-input-text"
@@ -159,8 +217,8 @@
       </button>
     {/if}
     <button class="fr-btn fr-col" type="button" on:click={createLink}
-      >Sauvegarder
-    </button>
+      >Sauvegarder</button
+    >
   </div>
 </div>
 
@@ -170,6 +228,7 @@
     flex-direction: column;
     background-color: #f5f5ff;
     padding: 1rem 1.5rem 1.5rem;
+    box-shadow: 0 8px 8px 0 rgb(0 0 0 / 10%), 0 8px 16px -16px rgb(0 0 0 / 32%);
 
     &.open {
       display: flex;

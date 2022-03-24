@@ -13,7 +13,6 @@ export default class SvelteCallout extends CorePlugin {
 
   static get toolbox() {
     return {
-      title: "Mise en avant",
       icon: "Mise en avant",
     };
   }

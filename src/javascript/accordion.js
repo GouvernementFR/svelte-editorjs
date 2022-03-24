@@ -1,10 +1,10 @@
 import CorePlugin from "./_core_plugin";
-import Highlight from "../svelte_plugins/Highlight.svelte";
+import Accordion from "../svelte_plugins/Accordion.svelte";
 
-export default class SvelteHighlight extends CorePlugin {
+export default class SvelteAccordion extends CorePlugin {
   constructor(...args) {
     super(...args);
-    this.Plugin = Highlight;
+    this.Plugin = Accordion;
   }
 
   static get enableLineBreaks() {
@@ -13,7 +13,7 @@ export default class SvelteHighlight extends CorePlugin {
 
   static get toolbox() {
     return {
-      icon: "Exergue",
+      icon: "Accordéon",
     };
   }
 }

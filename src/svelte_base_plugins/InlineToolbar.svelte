@@ -3,19 +3,18 @@
 <script>
   import { getContext } from "svelte";
   import LinkForm from "./LinkForm.svelte";
+  import AnchorForm from "./AnchorForm.svelte";
 
   export let top;
   export let left;
   export let hidden = true;
   export let inlineToolbarOptions;
   export let formats = {};
-  let linkForm;
-  let linkFormOpen;
+  let linkForm, linkFormOpen;
+  let anchorForm, anchorFormOpen, anchor;
   let headerLvl = getContext("headerLvl");
 
-  if (headerLvl) {
-    formats.headerLevel = `fr-h${headerLvl}`;
-  }
+  $: formats.headerLevel = `fr-h${$headerLvl}`;
 
   function setFormat(command) {
     document.execCommand(command);
@@ -89,19 +88,6 @@
     // inlineToolbar should not disappear on user's interactions.
     if (!e.target.matches(".fr-input")) e.preventDefault();
   }
-
-  function setTitle(e, event) {
-    const markup = event.currentTarget.closest(".svelte-input").firstChild;
-    // Avoids looping if markup already has the right class.
-    if (markup.classList.contains(e)) return;
-    markup.classList.forEach((item) => {
-      if (item === "fr-h2" || item === "fr-h3" || item === "fr-h4") {
-        markup.classList.remove(item);
-      }
-    });
-    markup.classList.add(e);
-    formats.headerLevel = e;
-  }
 </script>
 
 <span
@@ -109,17 +95,18 @@
   class:hidden
   style="top: {top}px; left: {left}px;"
   on:mousedown={preventBlur}
-  class:minheight={linkForm}
+  class:minwidth={inlineToolbarOptions.includes("createLink") ||
+    inlineToolbarOptions.includes("anchor")}
 >
   <div class="fr-grid-row fr-px-3v">
     {#each [2, 3, 4] as headerLevel}
       {#if inlineToolbarOptions.includes("fr-h" + headerLevel)}
         <button
           type="button"
-          on:click={(event) => setTitle("fr-h" + headerLevel, event)}
+          on:click={() => headerLvl.set(headerLevel)}
           class:isActive={formats.headerLevel === "fr-h" + headerLevel}
-          class="heading fr-text--lg"
-          disabled={linkFormOpen}
+          class="heading fr-text--bold"
+          disabled={linkFormOpen || anchorFormOpen}
         >
           T<sub class="fr-text--bold">{headerLevel}</sub>
         </button>
@@ -130,7 +117,7 @@
         type="button"
         on:click={() => setFontSize()}
         class:isActive={formats.fontSize}
-        disabled={linkFormOpen}
+        disabled={linkFormOpen || anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -150,7 +137,7 @@
         type="button"
         on:click={() => setFormat("bold")}
         class:isActive={formats.bold}
-        disabled={linkFormOpen}
+        disabled={linkFormOpen || anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -169,7 +156,7 @@
         type="button"
         on:click={() => setFormat("italic")}
         class:isActive={formats.italic}
-        disabled={linkFormOpen}
+        disabled={linkFormOpen || anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -188,7 +175,7 @@
         type="button"
         on:click={() => setFormat("insertOrderedList")}
         class:isActive={formats.insertOrderedList}
-        disabled={linkFormOpen}
+        disabled={linkFormOpen || anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +194,7 @@
         type="button"
         on:click={() => setFormat("insertUnorderedList")}
         class:isActive={formats.insertUnorderedList}
-        disabled={linkFormOpen}
+        disabled={linkFormOpen || anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -225,7 +212,8 @@
       <button
         type="button"
         on:click={linkForm.toggleLinkForm}
-        class:linkform-open={linkFormOpen}
+        class:form-opened={linkFormOpen}
+        disabled={anchorFormOpen}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -239,12 +227,41 @@
         >
       </button>
     {/if}
+    {#if inlineToolbarOptions.includes("anchor")}
+      <button
+        type="button"
+        on:click={anchorForm.toggleAnchorForm}
+        class:isActive={$anchor}
+        class:form-opened={anchorFormOpen}
+        disabled={linkFormOpen}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          ><path fill="none" d="M0 0h24v24H0z" /><path
+            d="M2.05 11H7v2H4.062A8.004 8.004 0 0 0 11 19.938V9.874A4.002 4.002 0 0 1 12 2a4 4 0 0 1 1 7.874v10.064A8.004 8.004 0 0 0 19.938 13H17v-2h4.95c.033.329.05.663.05 1 0 5.523-4.477 10-10 10S2 17.523 2 12c0-.337.017-.671.05-1zM12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"
+            fill="rgba(0,0,145,1)"
+          /></svg
+        >
+      </button>
+    {/if}
   </div>
-  {#if inlineToolbarOptions.includes("createLink")}
+  {#if inlineToolbarOptions.includes("anchor")}
+    <AnchorForm
+      bind:this={anchorForm}
+      bind:toolbarHidden={hidden}
+      bind:open={anchorFormOpen}
+      bind:anchor
+    />
+  {/if}
+  {#if inlineToolbarOptions.includes("createLink") && !hidden}
     <LinkForm
       bind:this={linkForm}
       bind:toolbarHidden={hidden}
       bind:open={linkFormOpen}
+      on:ExternalLinkAdded
     />
   {/if}
 </span>
@@ -259,15 +276,14 @@
   span {
     --color: #e3e3fe;
     position: absolute;
-    box-shadow: 0 2px 8px 2px rgba(22, 22, 22, 0.08),
-      0 2px 8px -4px rgba(22, 22, 22, 0.08);
+    box-shadow: 0 8px 8px 0 rgb(0 0 0 / 10%), 0 8px 16px -16px rgb(0 0 0 / 32%);
     transform: translate(-50%, 100%);
     background: var(--color);
     z-index: 3;
     max-height: 2.5rem;
 
-    &.minheight {
-      min-width: 19.5rem;
+    &.minwidth {
+      min-width: 22rem;
     }
 
     &:before {
@@ -302,7 +318,7 @@
     background: #9393f8 !important;
   }
 
-  .linkform-open {
+  .form-opened {
     box-shadow: inset 0 -4px 0 -2px #000091;
   }
 
@@ -324,11 +340,11 @@
     display: none;
   }
 
-  // Heading buttons
   .heading sub {
-    font-size: 14px;
+    font-size: 75%;
+    line-height: 0;
     position: relative;
-    top: 3px;
-    left: -2px;
+    vertical-align: baseline;
+    bottom: -0.25em;
   }
 </style>

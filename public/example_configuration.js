@@ -14,6 +14,10 @@ import {
   SvelteHighlight,
   SvelteLink,
   SvelteQuote,
+  SvelteAccordion,
+  SvelteIframe,
+  SvelteParagraph,
+  inlineToolbarFix,
 } from "./build/svelte-editorjs.mjs";
 
 window.addEventListener("load", function () {
@@ -21,13 +25,41 @@ window.addEventListener("load", function () {
   const editor = new EditorJS({
     holder: "editorjs",
     autofocus: true,
+    defaultBlock: 'paragraph',
     tools: {
-      headers: SvelteHeader,
-      quotes: SvelteQuote,
-      buttons: SvelteButton,
-      callouts: SvelteCallout,
-      highlights: SvelteHighlight,
-      links: SvelteLink,
+      inlinetoolbarFix: {
+        class: inlineToolbarFix,
+        config: { type: "none" },
+      },
+      // paragraph: {
+      //   class: SvelteParagraph,
+      //   inlineToolbar: ["inlinetoolbarFix"],
+      //   config: {
+      //     type: "text",
+      //   },
+      // },
+      Headers: {
+        class: SvelteHeader,
+        config: {
+          type: "text",
+        },
+      },
+      Buttons: {
+        class: SvelteButton,
+        config: { type: "button" },
+      },
+      Links: { class: SvelteLink, config: { type: "link" } },
+      Accordion: { class: SvelteAccordion, config: { type: "widget" } },
+      MiseEnAvants: { class: SvelteCallout, config: { type: "widget" } },
+      Exergues: { class: SvelteHighlight, config: { type: "widget" } },
+      Quotes: {
+        class: SvelteQuote,
+        config: { type: "widget" },
+      },
+      Iframe: {
+        class: SvelteIframe,
+        config: { type: "plugin" },
+      },
     },
   });
 
