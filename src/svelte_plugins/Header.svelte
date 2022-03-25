@@ -12,6 +12,7 @@
   let anchor = writable(data.anchor ?? "");
   setContext("anchor", anchor);
 
+  $: level.set(data.level);
   $: data.level = $level;
   $: data.isValid = headerInputIsValid;
   $: data.anchor = $anchor;

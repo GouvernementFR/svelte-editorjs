@@ -45,7 +45,7 @@ export default class SvelteHeader extends CorePlugin {
 
     this.plugin.data = {
       level: level,
-      text: content.innerHTML,
+      text: content.textContent,
     };
   }
 

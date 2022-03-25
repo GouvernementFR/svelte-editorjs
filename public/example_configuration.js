@@ -25,19 +25,19 @@ window.addEventListener("load", function () {
   const editor = new EditorJS({
     holder: "editorjs",
     autofocus: true,
-    defaultBlock: 'paragraph',
+    defaultBlock: "paragraph",
     tools: {
       inlinetoolbarFix: {
         class: inlineToolbarFix,
         config: { type: "none" },
       },
-      // paragraph: {
-      //   class: SvelteParagraph,
-      //   inlineToolbar: ["inlinetoolbarFix"],
-      //   config: {
-      //     type: "text",
-      //   },
-      // },
+      paragraph: {
+        class: SvelteParagraph,
+        inlineToolbar: ["inlinetoolbarFix"],
+        config: {
+          type: "text",
+        },
+      },
       Headers: {
         class: SvelteHeader,
         config: {
