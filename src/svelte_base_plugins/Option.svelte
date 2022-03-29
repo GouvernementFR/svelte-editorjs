@@ -4,6 +4,8 @@
   const uuid = uuidv4();
   let shown = true;
 
+  export let closeButton = true;
+
   export function show(e) {
     e.preventDefault();
     shown = true;
@@ -23,11 +25,13 @@
   <div class="fr-grid-row">
     <div class="fr-col-12">
       <div class="fr-options__header">
-        <button
-          class="fr-link--close fr-link"
-          aria-controls="fr-options-{uuid}"
-          on:click={hide}>Fermer</button
-        >
+        {#if closeButton}
+          <button
+            class="fr-link--close fr-link"
+            aria-controls="fr-options-{uuid}"
+            on:click={hide}>Fermer</button
+          >
+        {/if}
       </div>
       <slot />
       <p class="fr-options--required fr-text--xs fr-mb-0">

@@ -1,74 +1,96 @@
 export function inlineToolbarActions(node, inlineToolbar) {
-  const checkButtonsState = () => {
-    for (const option of inlineToolbar.inlineToolbarOptions) {
-      // queryCommand is not used for the fontSize.
-      if (option === "fontSize") {
-        const selection = document.getSelection();
-        if (selection) {
-          const fontSize = window
-            .getComputedStyle(selection.anchorNode.parentElement, null)
-            .getPropertyValue("font-size");
-          inlineToolbar.formats[option] = fontSize !== "16px";
-        }
-      } else {
-        inlineToolbar.formats[option] =
-          document.queryCommandState(option) || false;
+  const checkButtonsState = (selection) => {
+      for (const option of inlineToolbar.inlineToolbarOptions) {
+          // queryCommand is not used for the fontSize.
+          if (option === 'fontSize') {
+              const fontSize = window
+                  .getComputedStyle(selection.anchorNode.parentElement, null)
+                  .getPropertyValue('font-size');
+              inlineToolbar.formats[option] = fontSize === '16px';
+          } else {
+              inlineToolbar.formats[option] =
+                  document.queryCommandState(option) || false;
+          }
       }
+      // Check if there is an hyperlink
+      selectionHasLink(selection);
       // Needed by Svelte to trigger reactivity
       /* eslint no-self-assign: "off" */
       inlineToolbar.formats = inlineToolbar.formats;
-    }
   };
 
-  const handleDown = (event) => {
-    if (!inlineToolbar.hidden) {
-      inlineToolbar.hidden = true;
-    }
-    // Ensure the selection is always properly cleared
-    const selection = document.getSelection();
-    if (event.type === "mousedown" && selection && !selection.isCollapsed) {
-      selection.removeAllRanges();
-    }
+  function getFirefoxBadSelection(range) {
+      const a = range.startContainer.nextSibling;
+      const b = range.endContainer.previousSibling;
+      let badSelection = false;
+      if (a && b && a.isSameNode(b) && a.tagName === 'A') {
+          badSelection = a;
+      }
+      return badSelection;
+  }
+
+  function selectionHasLink(selection) {
+      const range =
+          selection.rangeCount === 0 ? null : selection.getRangeAt(0);
+      if (range) {
+          const nodes = [
+              range.startContainer,
+              range.endContainer,
+              range.startContainer.parentNode,
+              range.endContainer.parentNode,
+          ];
+          inlineToolbar.linkFormHasLink =
+              getFirefoxBadSelection(range) ||
+              nodes.find((node) => node.tagName === 'A');
+      }
+  }
+
+  const handleSelectionStarts = () => {
+      // Sets a one-time mouseup event when a selection starts.
+      document.addEventListener('mouseup', handleSelectionEnds, {once: true});
+  };
+
+  const handleDown = () => {
+      if (!inlineToolbar.hidden) {
+          inlineToolbar.hidden = true;
+      }
   };
 
   const handleBlur = (e) => {
-    if (
-      !e.relatedTarget ||
-      (!e.relatedTarget.matches(".fr-input") && !inlineToolbar.hidden)
-    ) {
-      inlineToolbar.hidden = true;
-    }
+      if (
+          !e.relatedTarget ||
+          (!e.relatedTarget.matches('.fr-input') && !inlineToolbar.hidden)
+      ) {
+          inlineToolbar.hidden = true;
+      }
   };
 
-  const handleMouseup = () => {
-    const selection = document.getSelection();
-    /* Check that some text is selected and that mouseup happens in the parent of the selection.
-        That prevents the rare case where a user would start selecting inside an input, then drag the mouse over
-        another input, and release the mouse button from there */
-    if (selection.toString() !== "" && node.contains(selection.anchorNode)) {
-      checkButtonsState();
-      const parentRect = node.getBoundingClientRect();
-      const rect = selection.getRangeAt(0).getBoundingClientRect();
-      inlineToolbar.hidden = false;
-      inlineToolbar.top = rect.top - parentRect.top;
-      inlineToolbar.left = rect.left - parentRect.left + rect.width / 2;
-    }
+  const handleSelectionEnds = () => {
+      const selection = document.getSelection();
+      if (selection && selection.toString() !== '') {
+          checkButtonsState(selection);
+          const parentRect = node.getBoundingClientRect();
+          const rect = selection.getRangeAt(0).getBoundingClientRect();
+          inlineToolbar.hidden = false;
+          inlineToolbar.top = rect.top - parentRect.top;
+          inlineToolbar.left = rect.left - parentRect.left + rect.width / 2;
+      }
   };
 
-  node.addEventListener("mousedown", handleDown);
-  node.addEventListener("keydown", handleDown);
-  node.addEventListener("mouseup", handleMouseup);
-  node.addEventListener("blur", handleBlur);
+  node.addEventListener('selectstart', handleSelectionStarts);
+  node.addEventListener('mousedown', handleDown);
+  node.addEventListener('keydown', handleDown);
+  node.addEventListener('blur', handleBlur);
 
   return {
-    update(newInlineToolbar) {
-      inlineToolbar = newInlineToolbar;
-    },
-    destroy() {
-      node.removeEventListener("mousedown", handleDown);
-      node.removeEventListener("keydown", handleDown);
-      node.removeEventListener("mouseup", handleMouseup);
-      node.removeEventListener("blur", handleBlur);
-    },
+      update(newInlineToolbar) {
+          inlineToolbar = newInlineToolbar;
+      },
+      destroy() {
+          node.removeEventListener('selectstart', handleSelectionStarts);
+          node.removeEventListener('mousedown', handleDown);
+          node.removeEventListener('keydown', handleDown);
+          node.removeEventListener('blur', handleBlur);
+      },
   };
 }

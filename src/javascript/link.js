@@ -13,7 +13,6 @@ export default class SvelteLink extends CorePlugin {
 
   static get toolbox() {
     return {
-      title: "Lien",
       icon: "Lien",
     };
   }
