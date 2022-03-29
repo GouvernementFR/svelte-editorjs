@@ -284,8 +284,8 @@
     span {
         --color: #e3e3fe;
         position: absolute;
-        box-shadow: 0 8px 8px 0 rgb(0 0 0 / 10%),
-            0 8px 16px -16px rgb(0 0 0 / 32%);
+        box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.1),
+            0 8px 16px -16px rgba(0, 0, 0, 0.32);
         transform: translate(-50%, 100%);
         background: var(--color);
         z-index: 3;
