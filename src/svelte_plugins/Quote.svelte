@@ -5,7 +5,6 @@
 
   export let data;
   let quoteInputIsValid;
-
   $: data.isValid = quoteInputIsValid;
 
   $: data.metadata = data.metadata ?? {};
@@ -37,11 +36,29 @@
     />
   </blockquote>
   <figcaption>
-    <Input {...authorInput} bind:text={data.author} />
-    <Input
-      {...metadataInput}
-      bind:html={data.metadata.html}
-      bind:text={data.metadata.text}
-    />
+    <p>
+      <Input {...authorInput} bind:text={data.author} />
+    </p>
+    <p>
+      <Input
+        {...metadataInput}
+        bind:html={data.metadata.html}
+        bind:text={data.metadata.text}
+      />
+    </p>
   </figcaption>
 </figure>
+
+<style lang="scss">
+  blockquote {
+    font-size: 1.375rem;
+    line-height: 2.25rem;
+    font-weight: bold;
+  }
+  figcaption {
+    margin-top: 15px;
+    p:first-child {
+      font-weight: bold;
+    }
+  }
+</style>

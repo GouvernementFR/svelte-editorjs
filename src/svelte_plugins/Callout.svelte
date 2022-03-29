@@ -15,7 +15,6 @@
     linkInputIsValid,
     option;
   let addButtonValue = !!data.link ? "Yes" : "No";
-  let hideOptions = false;
 
   let choices = [
     { value: "Yes", label: "Oui" },
@@ -49,7 +48,7 @@
 
   const textLinkPlaceholder = {
     placeholder: defaultPlaceholder,
-    classes: "fr-btn--placeholder fr-mb-0",
+    classes: "fr-btn--placeholder",
   };
   const textLinkInput = {
     required: true,
@@ -59,13 +58,13 @@
   const linkInput = {
     required: true,
     url: true,
-    placeholder: "www.gouvernement.fr",
+    placeholder: "https://www.gouvernement.fr",
     classes: "fr-input",
   };
 
   function handleChange(event) {
     if (event.currentTarget.value === "No") {
-      delete data["textlink"];
+      delete data["textLink"];
       delete data["link"];
       delete data["openWindow"];
       delete data["type"];
@@ -75,15 +74,6 @@
       data.openWindow = data.openWindow || "No";
       data.type = "Primary Button";
     }
-  }
-
-  function closeOptions(e) {
-    e.preventDefault();
-    hideOptions = true;
-  }
-
-  function openOptions(e) {
-    if (hideOptions) hideOptions = false;
   }
 </script>
 
@@ -101,7 +91,7 @@
       href={data.link}
       on:click|preventDefault
     >
-      <Input {...textLinkPlaceholder} bind:text={data.textlink} />
+      <Input {...textLinkPlaceholder} bind:text={data.textLink} />
     </a>
   {/if}
 </div>
@@ -157,7 +147,7 @@
       <Input
         id="callout-textlink-{uuid}"
         {...textLinkInput}
-        bind:text={data.textlink}
+        bind:text={data.textLink}
         bind:isValid={textLinkInputIsValid}
       />
     </div>
@@ -165,8 +155,7 @@
       <label class="fr-label" for="callout-link-{uuid}"
         >Lien de la mise en avant*</label
       >
-      <div class="fr-input-group--inline">
-        <p>https://</p>
+      <div class="fr-input-group">
         <Input
           id="callout-link-{uuid}"
           {...linkInput}
@@ -208,14 +197,6 @@
 
   legend {
     border: 0;
-  }
-
-  .fr-input-group--inline {
-    display: flex;
-
-    p {
-      margin-top: 0.5rem;
-    }
   }
 
   :global(.fr-btn--placeholder:before) {

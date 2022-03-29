@@ -38,7 +38,7 @@
 
   const textPlaceholder = {
     placeholder: "Cliquez pour modifier",
-    classes: "fr-btn--placeholder fr-mb-0",
+    classes: "fr-btn--placeholder",
   };
   const textInput = {
     required: true,
@@ -48,7 +48,7 @@
   const linkInput = {
     required: true,
     url: true,
-    placeholder: "www.gouvernement.fr",
+    placeholder: "https://www.gouvernement.fr",
     classes: "fr-input",
   };
 
@@ -60,8 +60,7 @@
 
 <a
   class={btnClasses}
-  class:fr-fi-external-link-line={data.openWindow === "Yes"}
-  class:fr-btn--icon-right={data.openWindow === "Yes"}
+  class:fr-btn--external={data.openWindow === "Yes"}
   class:fr-btn--secondary={data.type === "Secondary Button"}
   href={data.link}
   on:click={handleClick}
@@ -82,8 +81,7 @@
     <label class="fr-label" for="btn-link-{uuid}"
       >Lien de la mise en avant*</label
     >
-    <div class="fr-input-group--inline">
-      <p>https://</p>
+    <div class="fr-input-group">
       <Input
         id="btn-link-{uuid}"
         {...linkInput}
@@ -163,6 +161,12 @@
 
 <style lang="scss">
   .fr-btn {
+    &--external::after {
+      content: "";
+      font-family: icons !important;
+      margin-left: 10px;
+    }
+
     & :global(.fr-btn--placeholder:before) {
       color: #fff !important;
     }
@@ -193,15 +197,7 @@
       }
     }
   }
-
   legend {
     border: 0;
-  }
-
-  .fr-input-group--inline {
-    display: flex;
-    p {
-      margin-top: 0.5rem;
-    }
   }
 </style>

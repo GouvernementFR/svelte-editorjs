@@ -1,31 +1,30 @@
 <svelte:options accessors />
 
 <script>
+  import { setContext } from "svelte";
+  import { writable } from "svelte/store";
   import Input from "../svelte_base_plugins/Input.svelte";
-
   export let data;
-  let youtube_re =
-    /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?[\w\?‌​=]*)?/;
+
+  let anchor = writable(data.anchor ?? "");
+  setContext("anchor", anchor);
+
+  $: data.anchor = $anchor;
 
   const paragraphConfig = {
-    classes: "fr-mb-0",
+    allowPaste: true,
     inlineToolbarOptions: [
       "insertOrderedList",
       "insertUnorderedList",
       "italic",
       "bold",
       "createLink",
+      "anchor",
     ],
   };
-
-  function handlePaste(event) {
-    let paste = (event.clipboardData || window.clipboardData).getData("text");
-    if (!youtube_re.test(paste)) {
-      data.text = data.text + paste;
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
 </script>
 
-<Input {...paragraphConfig} bind:html={data.text} on:paste={handlePaste} />
+{#if $anchor}
+  <p class="fr-badge fr-badge--info">ÉLÉMENT ANCRÉ</p>
+{/if}
+<Input {...paragraphConfig} bind:html={data.text} />

@@ -1,48 +1,35 @@
 <svelte:options accessors />
 
 <script>
-  import { onMount, setContext } from "svelte";
+  import { setContext } from "svelte";
+  import { writable } from "svelte/store";
   import Input from "../svelte_base_plugins/Input.svelte";
   export let data;
-  data.level = data.level ?? "3";
-  let contenteditable;
   let headerInputIsValid;
+
+  let level = writable(data.level ?? "2");
+  setContext("headerLvl", level);
+  let anchor = writable(data.anchor ?? "");
+  setContext("anchor", anchor);
+
+  $: level.set(data.level);
+  $: data.level = $level;
   $: data.isValid = headerInputIsValid;
-
-  setContext("headerLvl", data.level);
-
-  onMount(() => {
-    const options = {
-      childList: false,
-      attributes: true,
-      characterData: false,
-      subtree: false,
-      attributeFilter: ["class"],
-      attributeOldValue: false,
-      characterDataOldValue: false,
-    };
-
-    let observer = new MutationObserver(() => {
-      contenteditable.classList.forEach((cl) => {
-        if (["fr-h2", "fr-h3", "fr-h4"].includes(cl)) {
-          data.level = cl.slice(-1);
-        }
-      });
-    });
-    observer.observe(contenteditable, options);
-  });
+  $: data.anchor = $anchor;
 
   const headerInput = {
     required: true,
     placeholder: "*Insérer un titre",
-    inlineToolbarOptions: ["fr-h2", "fr-h3", "fr-h4"],
+    inlineToolbarOptions: ["fr-h2", "fr-h3", "fr-h4", "anchor"],
   };
 </script>
 
+{#if $anchor}
+  <p class="fr-badge fr-badge--info">ÉLÉMENT ANCRÉ</p>
+{/if}
 <Input
   {...headerInput}
-  classes="fr-h{data.level}"
+  classes="fr-mb-0 fr-h{$level}"
   bind:text={data.text}
   bind:isValid={headerInputIsValid}
-  bind:contenteditable
 />

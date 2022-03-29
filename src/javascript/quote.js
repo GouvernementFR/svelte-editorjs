@@ -13,7 +13,6 @@ export default class SvelteQuote extends CorePlugin {
 
   static get toolbox() {
     return {
-      title: "Citation",
       icon: "Citation",
     };
   }

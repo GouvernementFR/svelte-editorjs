@@ -13,7 +13,6 @@ export default class SvelteButton extends CorePlugin {
 
   static get toolbox() {
     return {
-      title: "Bouton",
       icon: "Bouton",
     };
   }
