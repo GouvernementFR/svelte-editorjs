@@ -1,6 +1,10 @@
 <script>
     import {tick, createEventDispatcher, onDestroy} from 'svelte';
-    import {linkValidator, anchorValidator} from './validators.js';
+    import {
+        linkValidator,
+        anchorValidator,
+        relativeLinkValidator,
+    } from './validators.js';
 
     export let open = false;
     export let toolbarHidden;
@@ -110,7 +114,10 @@
     function createLink() {
         const linkValidation = linkValidator(inputContent) === true;
         const anchorValidation = anchorValidator(inputContent) === true;
-        inputIsValid = linkValidation || anchorValidation;
+        const relativeLinkValidation =
+            relativeLinkValidator(inputContent) === true;
+        inputIsValid =
+            linkValidation || anchorValidation || relativeLinkValidation;
         if (inputIsValid) {
             // Creates the link element
             const linkNode = document.createElement('a');
@@ -195,7 +202,7 @@
     <input
         class="fr-input"
         type="text"
-        placeholder="https:// ou #identifiant"
+        placeholder="https:// ou /lien ou #identifiant"
         id="text-input-text"
         autocomplete="off"
         name="text-input-text"
