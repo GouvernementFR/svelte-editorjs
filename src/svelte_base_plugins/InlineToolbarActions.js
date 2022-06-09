@@ -28,18 +28,23 @@ export function inlineToolbarActions(node, inlineToolbar) {
         if (inlineToolbar.formats.bold && inlineToolbar.formats.headerLevel) {
             inlineToolbar.formats.bold = false;
         }
+
         // Check if there is an hyperlink
         selectionHasLink(selection);
+
+        // Check if there is an span
+        selectionHasSpan(selection);
+
         // Needed by Svelte to trigger reactivity
         /* eslint no-self-assign: "off" */
         inlineToolbar.formats = inlineToolbar.formats;
     };
 
-    function getFirefoxBadSelection(range) {
+    function getFirefoxBadSelection(range, tag) {
         const a = range.startContainer.nextSibling;
         const b = range.endContainer.previousSibling;
         let badSelection = false;
-        if (a && b && a.isSameNode(b) && a.tagName === 'A') {
+        if (a && b && a.isSameNode(b) && a.tagName === tag) {
             badSelection = a;
         }
         return badSelection;
@@ -56,8 +61,24 @@ export function inlineToolbarActions(node, inlineToolbar) {
                 range.endContainer.parentNode,
             ];
             inlineToolbar.linkFormHasLink =
-                getFirefoxBadSelection(range) ||
+                getFirefoxBadSelection(range, 'A') ||
                 nodes.find((node) => node.tagName === 'A');
+        }
+    }
+
+    function selectionHasSpan(selection) {
+        const range =
+            selection.rangeCount === 0 ? null : selection.getRangeAt(0);
+        if (range) {
+            const nodes = [
+                range.startContainer,
+                range.endContainer,
+                range.startContainer.parentNode,
+                range.endContainer.parentNode,
+            ];
+            inlineToolbar.langFormHasSpan =
+                getFirefoxBadSelection(range, 'SPAN') ||
+                nodes.find((node) => node.tagName === 'SPAN');
         }
     }
 

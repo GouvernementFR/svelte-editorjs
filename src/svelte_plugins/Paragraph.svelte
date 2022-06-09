@@ -7,9 +7,12 @@
     export let data;
 
     let anchor = writable(data.anchor ?? '');
+    let langAttr = writable(data.langAttr ?? '');
     setContext('anchor', anchor);
+    setContext('langAttr', langAttr);
 
     $: data.anchor = $anchor;
+    $: data.langAttr = $langAttr;
 
     const paragraphConfig = {
         allowPaste: true,
@@ -20,6 +23,7 @@
             'bold',
             'createLink',
             'anchor',
+            'createLang',
         ],
     };
 </script>

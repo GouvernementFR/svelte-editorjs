@@ -136,6 +136,7 @@
             {inlineToolbarOptions}
             bind:this={inlineToolbar}
             on:ExternalLinkAdded={triggerUpdate}
+            on:LangAttrAdded={triggerUpdate}
         />
     {/if}
     {#if !isValid}
@@ -204,5 +205,10 @@
         &:focus {
             outline: none !important;
         }
+    }
+
+    :global(span[lang]) {
+        border-bottom: 2px dotted #000091;
+        text-decoration: none;
     }
 </style>

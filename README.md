@@ -107,6 +107,8 @@ Available options:
 - `insertOrderedList`: creates a numbered ordered list for the selection.
 - `insertUnorderedList`: creates a bulleted unordered list for the selection.
 - `createLink`: toggles `LinkForm` visibility, allowing to add/remove/edit an hyperlink for the selection (see [LinkForm](#linkform)).
+- `anchor`: toggles `AnchorForm` visibility, allowing to add/remove/edit an anchor for the whole block (see [AnchorForm](#anchorform)).
+- `createLang`: toggles `LangForm` visibility, allowing to add/remove/edit an attribute `lang` for the selection (see [LangForm](#langform)).
 
 Example:
 
@@ -114,7 +116,7 @@ Example:
 const exampleInput = {
   placeholder: "Adds some text",
   minLength: 10,
-  inlineToolbarOptions: ["bold", "italic", "createLink"],
+  inlineToolbarOptions: ["bold", "italic", "createLink", "anchor", "createLang"],
 };
 
 <Input {...exampleInput}/>
