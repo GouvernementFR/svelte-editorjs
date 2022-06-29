@@ -139,6 +139,8 @@
       </div>
     </fieldset>
   </div>
+  <!-- The #if is wrapped inside a <div> because of a bug that seems related to https://github.com/sveltejs/svelte/issues/6037 -->
+  <div>
   {#if addButtonValue === "Yes"}
     <div class="fr-input-group">
       <label class="fr-label" for="callout-textlink-{uuid}"
@@ -188,6 +190,7 @@
       </fieldset>
     </div>
   {/if}
+  </div>
 </Option>
 
 <style lang="scss">
