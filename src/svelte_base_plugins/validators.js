@@ -18,7 +18,8 @@ function requiredValidator(value) {
 function langValidator(value) {
     const langRegex = '^[a-z]{2}$';
     return (
-        (value && !!value.match(langRegex)) || 'Veuillez saisir un code de langage valide (ex: en)'
+        (value && !!value.match(langRegex)) ||
+        'Veuillez saisir un code de langage valide (ex: en)'
     );
 }
 

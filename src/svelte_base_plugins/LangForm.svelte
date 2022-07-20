@@ -35,8 +35,11 @@
         const selection = document.getSelection();
         selection.removeAllRanges();
         selection.addRange(trueSelection);
-        // Removes the fake selection background added in formInit()
-        document.execCommand('removeFormat');
+        
+        // Removes the fake selection background added in formInit() but not the SPAN attr Lang added in createLang() 
+        if (!selection.anchorNode.childNodes.length) {
+            document.execCommand('removeFormat');
+        }
     }
 
     function formInit() {
