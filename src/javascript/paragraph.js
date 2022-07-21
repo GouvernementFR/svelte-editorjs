@@ -50,6 +50,24 @@ export default class SvelteParagraph extends CorePlugin {
         };
     }
 
+    save() {
+        // Needs refacto
+        let text = this.plugin.data.text
+        if (text.includes("<div lang=")) {
+            const parser = new DOMParser();
+            const html = parser.parseFromString(text, 'text/html');
+            const langDivs = html.querySelectorAll("div[lang]")
+            langDivs.forEach(e => {
+                const newTag = document.createElement("span")
+                newTag.innerHTML = e.innerHTML
+                newTag.setAttribute("lang", e.getAttribute("lang"))
+                e.replaceWith(newTag)
+            })
+            this.plugin.data.text = html.body.innerHTML
+        }
+        return this.plugin.data
+    }
+
     validate(savedData) {
         return savedData.text.trim() !== '';
     }

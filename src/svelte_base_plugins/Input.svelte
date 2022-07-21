@@ -182,6 +182,12 @@
             content: attr(placeholder);
             color: #6a6a6a;
         }
+
+      :global(div[lang]) {
+        display:inline;
+        border-bottom: 2px dotted #000091;
+        text-decoration: none;
+      }
     }
 
     .validation-hint {
@@ -207,8 +213,9 @@
         }
     }
 
-    :global(span[lang]) {
-        border-bottom: 2px dotted #000091;
-        text-decoration: none;
+    :global(.ce-inline-toolbar--showed) {
+      display: none;
     }
+
+
 </style>
