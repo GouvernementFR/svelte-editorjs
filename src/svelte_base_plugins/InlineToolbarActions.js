@@ -77,8 +77,8 @@ export function inlineToolbarActions(node, inlineToolbar) {
                 range.endContainer.parentNode,
             ];
             inlineToolbar.langFormHasSpan =
-                getFirefoxBadSelection(range, 'SPAN') ||
-                nodes.find((node) => node.tagName === 'SPAN');
+                getFirefoxBadSelection(range, 'DIV') ||
+                nodes.find((node) => node.tagName === 'DIV' && node.hasAttribute("lang"));
         }
     }
 

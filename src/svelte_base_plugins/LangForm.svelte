@@ -85,7 +85,8 @@
             b &&
             a.isSameNode(b) &&
             a.childNodes.length === 1 &&
-            a.firstChild.tagName === 'SPAN'
+            a.firstChild.tagName === 'DIV' &&
+            a.firstChild.hasAttribute("lang")
         ) {
             badSelection = a.firstChild;
         }
@@ -101,7 +102,7 @@
         ];
         return (
             getFirefoxBadSelection() ||
-            nodes.find((node) => node.tagName === 'SPAN')
+            nodes.find((node) => node.tagName === 'DIV' && node.hasAttribute("lang"))
         );
     }
 
@@ -109,16 +110,16 @@
         errorMsg = langValidator(inputContent);
         inputIsValid = errorMsg === true;
         if (inputIsValid) {
-            // Creates the span element
-            const langNode = document.createElement('span');
+            // Creates the div element
+            const langNode = document.createElement('div');
             langNode.textContent = trueSelection.toString();
             langNode.setAttribute('lang', inputContent);
 
-            // Restores the selection & removes any span it may contains
+            // Restores the selection & removes any div it may contains
             restoreSelection();
             removeLang();
 
-            // Retrieve the current range, replace its contents with the span element
+            // Retrieve the current range, replace its contents with the div element
             const range = document.getSelection().getRangeAt(0);
             range.deleteContents();
             range.insertNode(langNode);
@@ -159,11 +160,15 @@
     }
 
     function removeLang() {
+        /*
+        Simplest might be to retrieve the parent contenteditable, get all the div that have a lang attribute, and then isolate
+        the right one with Selection.containsNode() ?
+         */
         const textNode = document.createTextNode(trueSelection.toString());
         const range = document.getSelection().getRangeAt(0);
         const wrapper = document.getSelection().anchorNode.parentElement;
 
-        if (wrapper.tagName === 'SPAN') wrapper.remove();
+        if (wrapper.tagName === 'DIV' && wrapper.hasAttribute("lang")) wrapper.remove();
 
         range.deleteContents();
         range.insertNode(textNode);
